@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Play the classic Snake, Water, Gun game in your browser with rich animations, synthesized sound effects, and offline support.">
+  <meta name="theme-color" content="#0b0f19">
+  <title>Snake • Water • Gun | Battle Arena</title>
+  
+  <!-- Modern Font from Google Fonts with fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-background">
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+  </div>
+
+  <main class="game-container">
+    <!-- Top Header & Game Info -->
+    <header class="game-header">
+      <div class="header-left">
+        <div class="brand-badge">
+          <span class="live-dot"></span>
+          <span>CLASSIC DUEL</span>
+        </div>
+        <h1 class="game-title">SNAKE <span class="divider">•</span> WATER <span class="divider">•</span> GUN</h1>
+      </div>
+
+      <div class="header-actions">
+        <!-- Audio Mute Toggle -->
+        <button id="btn-sound-toggle" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound (M)">
+          <span id="sound-icon" class="btn-icon">🔊</span>
+          <span id="sound-label" class="btn-label-text">SFX On</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Rules Quick Strip -->
+    <section class="rules-strip" aria-label="Game Rules Summary">
+      <span class="rule-chip snake-chip">🐍 Snake drinks 💧 Water</span>
+      <span class="rule-separator">|</span>
+      <span class="rule-chip water-chip">💧 Water douses 🔫 Gun</span>
+      <span class="rule-separator">|</span>
+      <span class="rule-chip gun-chip">🔫 Gun shoots 🐍 Snake</span>
+    </section>
+
+    <!-- Scoreboard Section -->
+    <section class="scoreboard-card" aria-label="Current Scores">
+      <div class="score-player player-side">
+        <div class="player-avatar user-avatar">
+          <span>👤</span>
+        </div>
+        <div class="player-info">
+          <span class="player-name">YOU</span>
+          <span class="player-sub">Player 1</span>
+        </div>
+        <div id="score-player" class="score-value">0</div>
+      </div>
+
+      <div class="score-center">
+        <div class="round-badge">
+          <span class="round-label">ROUND</span>
+          <span id="round-number" class="round-count">1</span>
+        </div>
+        <div class="draw-counter">
+          <span class="draw-label">DRAWS</span>
+          <span id="score-draws" class="draw-count">0</span>
+        </div>
+      </div>
+
+      <div class="score-player cpu-side">
+        <div id="score-cpu" class="score-value">0</div>
+        <div class="player-info text-right">
+          <span class="player-name">CYBER AI</span>
+          <span class="player-sub">CPU Bot</span>
+        </div>
+        <div class="player-avatar cpu-avatar">
+          <span>🤖</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Battle Arena Display -->
+    <section class="battle-arena" aria-label="Battle Duel Arena">
+      <!-- Player Choice Display Card -->
+      <div class="battle-card-wrapper">
+        <span class="combatant-tag">YOUR MOVE</span>
+        <div id="card-player" class="battle-card ready-state" data-state="idle">
+          <div class="card-inner">
+            <div class="card-emoji" id="player-card-emoji">❓</div>
+            <div class="card-title" id="player-card-title">Select Move</div>
+            <div class="card-meta" id="player-card-meta">Awaiting input...</div>
+          </div>
+          <div class="card-glow-layer"></div>
+        </div>
+      </div>
+
+      <!-- VS Indicator & Dynamic Round Outcome -->
+      <div class="arena-center">
+        <div class="vs-badge" id="vs-badge">VS</div>
+        <div id="outcome-banner" class="outcome-banner hidden" role="status" aria-live="polite">
+          <div id="outcome-badge" class="outcome-badge">READY</div>
+          <div id="outcome-desc" class="outcome-desc">Make your move below to start the round</div>
+        </div>
+      </div>
+
+      <!-- Computer Choice Display Card -->
+      <div class="battle-card-wrapper">
+        <span class="combatant-tag">AI OPPONENT</span>
+        <div id="card-cpu" class="battle-card ready-state" data-state="idle">
+          <div class="card-inner">
+            <div class="card-emoji" id="cpu-card-emoji">🤖</div>
+            <div class="card-title" id="cpu-card-title">Computer</div>
+            <div class="card-meta" id="cpu-card-meta">Waiting for player...</div>
+          </div>
+          <div class="card-glow-layer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Weapon Selection Controls -->
+    <section class="action-panel" aria-label="Move Selection">
+      <div class="panel-header">
+        <h2 class="panel-title">Choose Your Move</h2>
+        <span class="keyboard-tip">Hotkeys: [1] Snake &nbsp;•&nbsp; [2] Water &nbsp;•&nbsp; [3] Gun</span>
+      </div>
+
+      <div class="choice-buttons-grid">
+        <!-- Snake Button -->
+        <button id="btn-choice-snake" class="choice-btn snake-btn" data-choice="-1" aria-label="Choose Snake">
+          <div class="choice-btn-top">
+            <span class="btn-emoji">🐍</span>
+            <span class="btn-key-badge">1</span>
+          </div>
+          <div class="choice-btn-body">
+            <span class="btn-name">SNAKE</span>
+            <span class="btn-detail">Drinks Water (+1)</span>
+          </div>
+          <div class="btn-highlight"></div>
+        </button>
+
+        <!-- Water Button -->
+        <button id="btn-choice-water" class="choice-btn water-btn" data-choice="1" aria-label="Choose Water">
+          <div class="choice-btn-top">
+            <span class="btn-emoji">💧</span>
+            <span class="btn-key-badge">2</span>
+          </div>
+          <div class="choice-btn-body">
+            <span class="btn-name">WATER</span>
+            <span class="btn-detail">Douses Gun (0)</span>
+          </div>
+          <div class="btn-highlight"></div>
+        </button>
+
+        <!-- Gun Button -->
+        <button id="btn-choice-gun" class="choice-btn gun-btn" data-choice="0" aria-label="Choose Gun">
+          <div class="choice-btn-top">
+            <span class="btn-emoji">🔫</span>
+            <span class="btn-key-badge">3</span>
+          </div>
+          <div class="choice-btn-body">
+            <span class="btn-name">GUN</span>
+            <span class="btn-detail">Shoots Snake (-1)</span>
+          </div>
+          <div class="btn-highlight"></div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Footer Controls & Status -->
+    <footer class="game-footer">
+      <button id="btn-reset-score" class="secondary-btn" title="Reset all current match scores">
+        <span>🔄</span> Reset Score
+      </button>
+
+      <div class="status-summary" id="status-summary">
+        Round 1 in progress. Tap a weapon to play!
+      </div>
+    </footer>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
